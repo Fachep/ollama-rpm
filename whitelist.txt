@@ -1,0 +1,12 @@
+golang-github-chewxy-hm-devel
+golang-github-chewxy-math32-devel
+golang-github-d4l3k-bfloat16-devel
+golang-github-emirpasic-gods-2-devel
+golang-github-gin-contrib-cors-devel
+golang-github-nlpodyssey-gopickle-devel
+golang-github-pdevine-tensor-devel
+golang-github-x448-float16-devel
+golang-github-xtgo-set-devel
+golang-go4-unsafe-assume-no-moving-gc-devel
+golang-gorgonia-vecf32-devel
+golang-gorgonia-vecf64-devel
