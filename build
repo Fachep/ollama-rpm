@@ -1,7 +1,7 @@
 #!/bin/sh
 
 mock -r fedora-41-x86_64 \
-    --spec ./ollama.spec --sources $(pwd)/SOURCES \
+    --spec ./ollama.spec --sources . \
     --addrepo https://raw.githubusercontent.com/fachep/ollama-rpm/refs/heads/repo/repo \
-    --without rocm \
+    --addrepo https://developer.download.nvidia.com/compute/cuda/repos/fedora41/x86_64 \
     --enable-plugin ccache --enable-network $@

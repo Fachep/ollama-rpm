@@ -122,11 +122,6 @@ sed -i -e 's@set(OLLAMA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib/ollama)@set(OLLA
     export CXX=g++-14
 %endif
 
-export CFLAGS=
-export CXXFLAGS=
-export FFLAGS=
-export FCFLAGS=
-export LDFLAGS=
 %endif
 
 %cmake \
@@ -135,6 +130,7 @@ export LDFLAGS=
     -DAMDGPU_TARGETS=%{rocm_gpu_list_default} \
 %endif
 %if %{with cuda}
+    -DCMAKE_CUDA_FLAGS="-Xcompiler -fPIC" \
     -DCMAKE_CUDA_COMPILER=/usr/local/cuda-12.8/bin/nvcc \
     -DCMAKE_CUDA_ARCHITECTURES="%{cuda_architectures}" \
 %endif
