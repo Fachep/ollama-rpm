@@ -149,6 +149,7 @@ install -d -m 0755 %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}/ollama.service
 install -d -m 0755 %{buildroot}%{_sysusersdir}
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysusersdir}/ollama.conf
+mkdir -p %{buildroot}%{_sharedstatedir}/ollama
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/ollama
 
@@ -197,6 +198,7 @@ popd
 %{_unitdir}/ollama.service
 %{_sysusersdir}/ollama.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/ollama
+%attr(-,ollama,ollama) %dir %{_sharedstatedir}/ollama
 
 %dir %{_libdir}/ollama
 %{_libdir}/ollama/libggml-base.so
