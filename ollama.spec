@@ -97,7 +97,7 @@ done
 mv app/README.md app-README.md
 mv integration/README.md integration-README.md
 mv llama/README.md llama-README.md
-mv llama/runner/README.md llama-runner-README.md
+mv runner/README.md llama-runner-README.md
 mv macapp/README.md macapp-README.md
 
 # gcc 15 cstdint
