@@ -30,16 +30,13 @@ jobs:
           done
           ls *.rpm | sort > ../files.txt
           cd ..
-      
-      - name: Check for changes
+
+      - name: Commit changes
         run: |
           if git diff --quiet files.txt; then
             echo "No changes"
             exit 0
           fi
-    
-      - name: Commit changes
-        run: |
           sudo apt-get install -y createrepo-c
           createrepo_c repo
           git config user.name "github-actions[bot]"
