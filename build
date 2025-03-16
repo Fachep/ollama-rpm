@@ -2,6 +2,5 @@
 
 mock -r fedora-41-x86_64 \
     --spec ./ollama.spec --sources . \
-    --addrepo https://raw.githubusercontent.com/fachep/ollama-rpm/refs/heads/repo/repo \
     --addrepo https://developer.download.nvidia.com/compute/cuda/repos/fedora41/x86_64 \
     --enable-plugin ccache --enable-network $@

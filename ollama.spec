@@ -19,13 +19,13 @@
 # https://github.com/ollama/ollama
 %global goipath         github.com/ollama/ollama
 %global forgeurl        https://github.com/ollama/ollama
-Version:                0.5.12
+Version:                0.6.1
 
 %gometa -L -f
 
 %global common_description %{expand:
-Get up and running with Llama 3.3, DeepSeek-R1, Phi-4, Gemma 3, and other
-large language models.}
+Get up and running with Llama 3.3, DeepSeek-R1, Phi-4, Gemma 3, and other large
+language models.}
 
 %global golicenses      LICENSE
 %global godocs          docs examples CONTRIBUTING.md README.md SECURITY.md\\\
@@ -98,9 +98,6 @@ mv integration/README.md integration-README.md
 mv llama/README.md llama-README.md
 mv runner/README.md llama-runner-README.md
 mv macapp/README.md macapp-README.md
-
-# gcc 15 cstdint
-sed -i '/#include <vector.*/a#include <cstdint>' llama/llama.cpp/src/llama-mmap.h
 
 # install dir is off, lib -> lib64
 sed -i -e 's@set(OLLAMA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib/ollama)@set(OLLAMA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib64/ollama)@' CMakeLists.txt
@@ -221,7 +218,6 @@ popd
 %{_libdir}/ollama/libggml-cpu-haswell.so
 %{_libdir}/ollama/libggml-cpu-icelake.so
 %{_libdir}/ollama/libggml-cpu-sandybridge.so
-%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
 %{_libdir}/ollama/libggml-cpu-skylakex.so
 
 %dir %{_libdir}/ollama/bin
