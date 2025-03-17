@@ -33,8 +33,8 @@ language models.}
                         llama-runner-README.md macapp-README.md
 
 Name:           ollama
-Release:        %autorelease
-Summary:        Get up and running AI LLMs
+Release:        1%{?dist}
+Summary:        Meta-package containing Ollama and all backends.
 
 License:        Apache-2.0 AND MIT
 URL:            %{gourl}
@@ -42,6 +42,7 @@ Source:         %{gosource}
 Source2:        ollama.service
 Source3:        ollama-user.conf
 Source4:        sysconfig.ollama
+Source5:        ollama-discover-path.go
 
 %if %{defined goversion}
 BuildRequires:  curl
@@ -63,24 +64,26 @@ BuildRequires:  rocm-hip-devel
 BuildRequires:  rocm-rpm-macros
 BuildRequires:  rocminfo
 
-Requires:       hipblas
-Requires:       rocblas
+Requires:       ollama-rocm = %{version}-%{release}
 %endif
 
 %if %{with cuda}
 BuildRequires:  cuda-toolkit = 12.8.0
 %if 0%{?fedora} >= 42
 BuildRequires:  gcc14-c++
+
+Requires:       ollama-cuda = %{version}-%{release}
 %endif
 
-Requires:       cuda-cudart-12-8
-Requires:       libcublas-12-8
+Requires:       ollama-cpu = %{version}-%{release}
+
 %endif
 
 # Only tested on x86_64:
 ExcludeArch:    ppc64le s390x aarch64
 
-%description %{common_description}
+%description
+This meta package will install Ollama version %{version} and all backends.
 
 %gopkg
 
@@ -102,6 +105,9 @@ mv macapp/README.md macapp-README.md
 # install dir is off, lib -> lib64
 sed -i -e 's@set(OLLAMA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib/ollama)@set(OLLAMA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib64/ollama)@' CMakeLists.txt
 
+# Fix path for discovering ggml backends
+cp %{SOURCE5} discover/path.go -f
+sed -i -e 's@"lib/ollama"@"lib64/ollama"@' ml/backend/ggml/ggml/src/ggml.go
 
 %generate_buildrequires
 %go_generate_buildrequires
@@ -190,19 +196,25 @@ popd
 %gocheck
 %endif
 
-%pre
+%files
+
+%package cpu
+Summary:       Get up and running AI LLMs
+%description cpu %{common_description}
+
+%pre cpu
 %sysusers_create_compat %{SOURCE3}
 
-%post
+%post cpu
 %systemd_post ollama.service
 
-%preun
+%preun cpu
 %systemd_preun ollama.service
 
-%postun
+%postun cpu
 %systemd_postun_with_restart ollama.service
 
-%files
+%files cpu
 %license LICENSE
 %doc CONTRIBUTING.md SECURITY.md README.md app-README.md integration-README.md
 %doc llama-README.md llama-runner-README.md macapp-README.md
@@ -225,14 +237,47 @@ popd
 %{_bindir}/ollama
 
 %if %{with rocm}
+
+%package rocm
+Summary:       ROCm backend for Ollama
+%description rocm
+This package contains the ROCm backend for Ollama.
+Supported GPUs: %{rocm_gpu_list_default}
+
+Requires:       hipblas
+Requires:       rocblas
+Requires:       ollama-cpu = %{version}-%{release}
+
+%files rocm
 %dir %{_libdir}/ollama/rocm
 %{_libdir}/ollama/rocm/libggml-hip.so
+
 %endif
+
+%if %{with cuda}
+
+%package cuda
+Summary:       CUDA backend for Ollama
+%description cuda
+This package contains the CUDA v12.8 backend for Ollama.
+Supported Architectures: %{cuda_architectures}
+
+Requires:       cuda-cudart-12-8
+Requires:       libcublas-12-8
+Requires:       ollama-cpu = %{version}-%{release}
+
+%files cuda
 %dir %{_libdir}/ollama/cuda_v12
 %{_libdir}/ollama/cuda_v12/libggml-cuda.so
-%if %{with cuda}
 
 %endif
 
 %changelog
-%autochangelog
+* Sun Mar 16 2025 Fachep <mail@fachep.com> - 0.6.1-1
+ - Bump to v0.6.1
+
+* Sat Mar 15 2025 Fachep <mail@fachep.com> - 0.5.12-1
+ - Bump to v0.5.12
+
+* Sat Mar 15 2025 Fachep <mail@fachep.com> - 0.5.9-1
+ - First import v0.5.9
