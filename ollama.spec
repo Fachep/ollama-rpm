@@ -54,6 +54,8 @@ BuildRequires:  cmake
 BuildRequires:  systemd-rpm-macros
 %{?sysusers_requires_compat}
 
+Requires:       ollama-cpu = %{version}-%{release}
+
 %if %{with rocm}
 BuildRequires:  hipblas-devel
 BuildRequires:  rocblas-devel
@@ -69,14 +71,12 @@ Requires:       ollama-rocm = %{version}-%{release}
 
 %if %{with cuda}
 BuildRequires:  cuda-toolkit = 12.8.0
-%if 0%{?fedora} >= 42
-BuildRequires:  gcc14-c++
 
 Requires:       ollama-cuda = %{version}-%{release}
+
+%if 0%{?fedora} >= 42
+BuildRequires:  gcc14-c++
 %endif
-
-Requires:       ollama-cpu = %{version}-%{release}
-
 %endif
 
 # Only tested on x86_64:
