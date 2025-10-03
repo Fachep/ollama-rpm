@@ -1,0 +1,49 @@
+name: Vendor Dependencies
+
+on:
+  workflow_dispatch:
+
+env:
+  SPEC_REPO: https://src.fedoraproject.org/forks/fachep/rpms/ollama.git
+  SPEC_BRANCH: copr
+  SPEC_FILE: ollama.spec
+  REPO_PATH: ollama
+  OUTPUT: vendor.tar.bz2
+
+jobs:
+  vendor:
+    name: Vendor Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Checkout spec repo
+        run: |
+          git clone --depth 1 --branch $SPEC_BRANCH $SPEC_REPO rpm
+          cp Dockerfile rpm/
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+      - name: Build Tarball
+        uses: docker/build-push-action@v6
+        with:
+          context: rpm
+          build-args: |
+            REPO_PATH=${{ env.REPO_PATH }}
+            SPEC_FILE=${{ env.SPEC_FILE }}
+            OUTPUT=${{ env.OUTPUT }}
+          outputs: type=local,dest=dist
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Read Version
+        id: version
+        run: cat dist/VERSION >> $GITHUB_OUTPUT
+      - name: Upload Tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: ollama-vendor-${{ steps.version.outputs.VERSION }}
+          path: dist/${{ env.OUTPUT }}
+      - name: Release Tarball
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ env.OUTPUT }}
+          tag_name: v${{ steps.version.outputs.VERSION }}
