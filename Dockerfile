@@ -9,12 +9,16 @@ ARG SPEC_FILE
 ARG GO_VENDOR_CONFIG
 ARG OUTPUT
 WORKDIR /build
-RUN dnf install -y rpm-build rpkg go-vendor-tools golang python3-specfile && dnf clean all
+RUN dnf install -y rpmdevtools rpm-build rpkg go-vendor-tools golang python3-specfile && dnf clean all
 COPY . .
-RUN rpkg sources --repo-path ${REPO_PATH} && \
+RUN if grep -q $(python3 -c $'import specfile\n'"print(specfile.Specfile('${SPEC_FILE}').sources().content[0].expanded_filename)") sources; then \
+    rpkg sources --repo-path ${REPO_PATH}; \
+    else \
+    spectool -g ${SPEC_FILE}; \
+    fi && \
     rpmspec -q --qf "VERSION=%{version}" --srpm ${SPEC_FILE} > /VERSION && \
     go_vendor_archive create --config ${GO_VENDOR_CONFIG} ${SPEC_FILE} && \
-    mv $(echo -e "import specfile\nprint(specfile.Specfile('${SPEC_FILE}').sources().content[1].expanded_filename)" | python3) /${OUTPUT}
+    mv $(python3 -c $'import specfile\n'"print(specfile.Specfile('${SPEC_FILE}').sources().content[1].expanded_filename)") /${OUTPUT}
 
 FROM scratch
 ARG OUTPUT
